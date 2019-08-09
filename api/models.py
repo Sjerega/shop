@@ -4,7 +4,7 @@ from django.db import models
 
 class Product(models.Model):
     title = models.CharField(max_length=150)
-    slug = models.SlugField(max_length=150, unique=True)
+#    slug = models.SlugField(max_length=150, unique=True)
     description = models.TextField(blank=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     tags = models.ManyToManyField('Tag', blank=True, related_name='products')
@@ -17,7 +17,7 @@ class Product(models.Model):
 
 class Category(models.Model):
     title = models.CharField(max_length=150, unique=True)
-    slug = models.CharField(max_length=150, unique=True)
+#    slug = models.CharField(max_length=150, unique=True)
 
     class Meta:
         verbose_name_plural = 'Categories'
@@ -28,7 +28,7 @@ class Category(models.Model):
 
 class Tag(models.Model):
     title = models.CharField(max_length=50, unique=True)
-    slug = models.CharField(max_length=50, unique=True)
+#    slug = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.title

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+  <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <title>Документ</title>
+</head>
+<body>
+  <div id="app">
+    <nav class="nav">
+      <a
+        v-for="item in nav"
+        v-bind:href=[[item.link]]
+        v-on:click.prevent="router([[item.link]])"
+      >[[item.title]]</a>
+    </nav>
+    <div
+      v-for="product in products"
+      class="product"
+    >
+      <h2>
+        <a v-bind:href=[[product.category.link]]>[[product.category.title]]</a>
+        >
+        <a
+          v-bind:href=[[product.link]]
+          v-on:click.prevent="router([[product.link]])"
+        >[[ product.title ]]</a>
+      </h2>
+      <span class="product_date_mod">[[ product.date_mod ]]</span>
+      <div>[[ product.description ]]</div>
+      <div>
+        <a
+          v-for="tag in product.tags"
+          v-bind:href=[[tag.link]]
+        >[[tag.title]] </a>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+  var app = new Vue({
+      delimiters: ['[[', ']]'],
+      el: '#app',
+      data: {
+          products: [],
+          nav: [],
+      },
+      mounted() {
+          this.nav = [
+              {link: '/products/', title: 'Продукты'},
+              {link: '/categories/', title: 'Категории'},
+              {link: '/tags/', title: 'Тэги'}
+          ];
+          this.router(window.location.pathname);
+      },
+      methods: {
+          router(link) {
+              link = String(link);
+              var link_parts = link.split('/');
+              history.pushState(null, null, link)
+
+              if (link_parts[1] == 'products') {
+                  if (link_parts[2] && link_parts[2] == +link_parts[2]) {
+                      this.get_product(link_parts[2]);
+                  } else {
+                      this.get_products();
+                  }
+              }
+          },
+          get_products() {
+              axios
+                  .get('/api/v1/products/')
+                  .then(response => {
+                      this.products = response.data;
+/*                      for (product of this.products) {
+                          product.link = this.add_link('product', product.id);
+                          product.category.link = this.add_link('category', product.category.id);
+                          for (tag of product.tags) {
+                              tag.link = this.add_link('tag', tag.id);
+                          }
+                      }*/
+                  });
+          },
+          get_product(product_id) {
+              axios
+                  .get('/api/v1/products/' + product_id + '/')
+                  .then(response => {
+                      this.products = [response.data];
+                  })
+          },
+//          add_link(path, id) {
+//              return '/' + path + '/' + id + '/';
+//          },
+      }
+  })
+  </script>
+  <style>
+    .product{border: 2px solid red; width: 600px; height: 200px; margin: 20px auto;}
+    .product_date_mod{color: #ccc; font-size: .7em;}
+    .nav{display: block; padding: 10px 100px; background: #eef3ff;}
+    .nav>a{
+      display: inline-block;
+      min-width: 200px;
+      margin: 0 10px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      background: #8c8;
+      text-align: center;
+      text-decoration: none;
+      color: #000;
+      -webkit-transition-duration: .8s
+    }
+    .nav>a:hover{background: #66c; color: #fff}
+  </style>
+</body>
+</html>
